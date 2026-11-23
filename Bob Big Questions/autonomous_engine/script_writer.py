@@ -12,22 +12,25 @@ import random
 import requests
 from typing import Dict, Any
 
-# Random duration choices between 1:00 (60s) and 2:30 (150s)
-DURATION_PRESETS = [60.0, 75.0, 90.0, 105.0, 120.0, 135.0, 150.0]
+# Truly randomized dynamic duration: 1m 45s (105s) to 3m 05s (185s)
+# Every video gets a unique, unpredictable duration down to the second (e.g. 2:14, 2:47, 1:56, 3:02)
+def pick_random_duration() -> float:
+    # Random base seconds between 110s and 180s + random fraction
+    base_sec = random.randint(110, 180)
+    fraction = random.choice([0.0, 0.2, 0.4, 0.6, 0.8])
+    return round(base_sec + fraction, 1)
 
 
 def generate_screenplay(topic_info: Dict[str, Any], gemini_api_key: str = None) -> Dict[str, Any]:
     """Generates an engaging, high-humor screenplay for Bob with randomized duration."""
-    target_duration = random.choice(DURATION_PRESETS)
+    target_duration = pick_random_duration()
     key = gemini_api_key or os.environ.get("GEMINI_API_KEY", "")
 
-    # Calculate scene count: 4 scenes for 60s, 6 for 90s, 7 for 120s, 8 for 150s
-    if target_duration <= 75.0:
-        scene_count = 4
-    elif target_duration <= 105.0:
-        scene_count = 5
-    elif target_duration <= 125.0:
+    # Calculate scene count: 6 scenes for ~2 mins, 7-8 scenes for ~2.5 - 3 mins
+    if target_duration < 130.0:
         scene_count = 6
+    elif target_duration < 160.0:
+        scene_count = 7
     else:
         scene_count = 8
 
