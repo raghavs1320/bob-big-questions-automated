@@ -1,0 +1,35 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Sensitive API Keys and OAuth Credentials
+# (These are safely stored in encrypted GitHub Actions Secrets, NEVER committed to git)
+.env
+*.env
+client_secrets*.json
+token*.json
+*.token
+Bob Big Questions/client_secrets*.json
+Bob Big Questions/token*.json
+Bob Big Questions/*.token
+Bob Big Questions/*.json.bak
+
+# Large media outputs and temporary render files
+storage/
+Bob Big Questions/audio/
+Bob Big Questions/exports/videos/*.mp4
+Bob Big Questions/exports/runs/
+exports/runs/
+*.m4a
+brain/
+archive_dailydose_legacy/
+Channel 2/
+enternatinemnet news channel/
+
+# macOS system files
+.DS_Store

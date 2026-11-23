@@ -1,0 +1,29 @@
+# Daily Dose Studio - Core Production Requirements
+
+# Configuration & Data Validation
+pydantic>=2.7.0
+python-dotenv>=1.0.0
+
+# Hardware Acceleration & Local Media Runtime (Apple Silicon / VideoToolbox)
+imageio-ffmpeg>=0.5.1
+
+# Multimodal AI Vision & Scriptwriting
+google-genai>=0.1.0
+
+# Neural Voice & Speech Synthesis
+edge-tts>=6.1.12
+
+# Video Ingestion & Viral Scraping
+yt-dlp>=2024.08.06
+requests>=2.31.0
+
+# Web Dashboard & Studio UI
+streamlit>=1.38.0
+
+# YouTube Data API & OAuth Automation
+google-api-python-client>=2.150.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+
+# Testing & Verification
+pytest>=8.0.0

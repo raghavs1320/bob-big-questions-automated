@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  daily-dose-studio:
+    build: .
+    container_name: daily_dose_studio
+    ports:
+      - "8501:8501"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - NARRATOR_VOICE=en-US-ChristopherNeural
+      - DEFAULT_ASPECT_RATIO=16:9
+    volumes:
+      - ./storage:/app/storage
+    restart: unless-stopped
