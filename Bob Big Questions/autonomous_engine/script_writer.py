@@ -34,9 +34,9 @@ def generate_screenplay(topic_info: Dict[str, Any], gemini_api_key: str = None) 
     topic = topic_info["topic"]
     title = topic_info.get("title", f"{topic} | Bob Big Questions")
 
-    # Try Gemini AI models
+    # Try Gemini AI models (Prioritizing Gemini 3.5 Flash)
     if key:
-        models = ["gemini-2.5-flash", "gemini-flash-latest"]
+        models = ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"]
         for model in models:
             try:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"

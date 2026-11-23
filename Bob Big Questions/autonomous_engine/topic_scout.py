@@ -202,43 +202,45 @@ def scout_viral_topic(gemini_api_key: str = None) -> dict:
 
     # Try Gemini AI discovery first
     if key:
-        try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={key}"
-            prompt = (
-                "You are the Creative Director for 'Bob Big Questions' - a mega-viral 2D animated cartoon channel "
-                "for kids (7+ years old) and curious families, similar to Kurzgesagt and Meet Arnold.\n"
-                "Generate ONE fresh, jaw-dropping 'What If' science topic that has extreme viral curiosity, "
-                "is simple enough for a 7-year-old child to find hilarious, and features our lovable cartoon hero Bob.\n"
-                f"DO NOT repeat or closely match any of these previous topics: {json.dumps(history[-30:])}\n"
-                "Return PURE JSON strictly formatted as:\n"
-                "{\n"
-                '  "topic": "What If...",\n'
-                '  "title": "Viral YouTube Title | Bob Big Questions",\n'
-                '  "thumb_line1": "LINE 1 (UP TO 20 CHARS, WHITE)",\n'
-                '  "thumb_line2": "LINE 2 (UP TO 24 CHARS, YELLOW)",\n'
-                '  "hook": "1-sentence hook for kids with humor",\n'
-                '  "core_science": "Key scientific phenomena explained simply"\n'
-                "}\n"
-                "Do NOT wrap in markdown fences."
-            )
-            resp = requests.post(
-                url,
-                headers={"Content-Type": "application/json"},
-                json={"contents": [{"parts": [{"text": prompt}]}]},
-                timeout=10
-            )
-            if resp.status_code == 200:
-                raw_text = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-                if raw_text.startswith("```"):
-                    raw_text = raw_text.split("```")[1]
-                    if raw_text.startswith("json"):
-                        raw_text = raw_text[4:]
-                data = json.loads(raw_text.strip())
-                if not is_topic_too_similar(data["topic"], history):
-                    save_topic_to_history(data)
-                    return data
-        except Exception as e:
-            print(f"⚠️ Gemini scout fallback triggered: {e}")
+        models = ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"]
+        for model in models:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
+                prompt = (
+                    "You are the Creative Director for 'Bob Big Questions' - a mega-viral 2D animated cartoon channel "
+                    "for kids (7+ years old) and curious families, similar to Kurzgesagt and Meet Arnold.\n"
+                    "Generate ONE fresh, jaw-dropping 'What If' science topic that has extreme viral curiosity, "
+                    "is simple enough for a 7-year-old child to find hilarious, and features our lovable cartoon hero Bob.\n"
+                    f"DO NOT repeat or closely match any of these previous topics: {json.dumps(history[-30:])}\n"
+                    "Return PURE JSON strictly formatted as:\n"
+                    "{\n"
+                    '  "topic": "What If...",\n'
+                    '  "title": "Viral YouTube Title | Bob Big Questions",\n'
+                    '  "thumb_line1": "LINE 1 (UP TO 20 CHARS, WHITE)",\n'
+                    '  "thumb_line2": "LINE 2 (UP TO 24 CHARS, YELLOW)",\n'
+                    '  "hook": "1-sentence hook for kids with humor",\n'
+                    '  "core_science": "Key scientific phenomena explained simply"\n'
+                    "}\n"
+                    "Do NOT wrap in markdown fences."
+                )
+                resp = requests.post(
+                    url,
+                    headers={"Content-Type": "application/json"},
+                    json={"contents": [{"parts": [{"text": prompt}]}]},
+                    timeout=10
+                )
+                if resp.status_code == 200:
+                    raw_text = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    if raw_text.startswith("```"):
+                        raw_text = raw_text.split("```")[1]
+                        if raw_text.startswith("json"):
+                            raw_text = raw_text[4:]
+                    data = json.loads(raw_text.strip())
+                    if not is_topic_too_similar(data["topic"], history):
+                        save_topic_to_history(data)
+                        return data
+            except Exception as e:
+                print(f"⚠️ Gemini scout {model} attempt: {e}")
 
     # Fallback to Curated Evergreen Queue
     for item in EVERGREEN_QUEUE:
