@@ -124,24 +124,24 @@ def generate_cartoon_music(duration_sec: float, output_path: Path):
     proc.communicate(input=audio_int16.tobytes())
 
 
-def assemble_and_mix_audio(scene_data: List[Dict[str, Any]], target_duration: float, output_dir: Path) -> Path:
-    """Concatenates scene voiceovers with gentle padding and mixes with ducked music."""
-    total_raw_voice = sum(s["raw_duration"] for s in scene_data)
-    num_scenes = len(scene_data)
+def assemble_and_mix_audio(scene_data: List[Dict[str, Any]], output_dir: Path) -> Path:
+    """Concatenates scene voiceovers with a tight, natural 1.0s breath pause and mixes with ducked music.
     
-    # Calculate padding needed to meet target duration
-    needed_pad = max(0.0, target_duration - total_raw_voice)
-    pad_per_scene = needed_pad / num_scenes if num_scenes > 0 else 0.5
+    CRITICAL: The voiceover DRIVES the scene duration!
+    When the narrator finishes speaking (+ 1.0s natural pause), the scene IMMEDIATELY switches.
+    Zero dead silence, zero awkward waiting!
+    """
+    PAUSE_PER_SCENE = 1.0  # Natural comedic breath pause
 
     padded_files = []
     for sc in scene_data:
         p_out = output_dir / f"scene_{sc['scene_num']:02d}_padded.wav"
-        sc_dur = sc["raw_duration"] + pad_per_scene
+        sc_dur = sc["raw_duration"] + PAUSE_PER_SCENE
         sc["final_duration"] = sc_dur
         sc["frames"] = int(round(sc_dur * 30))
         cmd = [
             get_ffmpeg_bin(), "-y", "-i", str(sc["raw_path"]),
-            "-af", f"apad=pad_dur={pad_per_scene:.3f}",
+            "-af", f"apad=pad_dur={PAUSE_PER_SCENE:.3f}",
             "-ar", str(SAMPLE_RATE), "-ac", "2",
             str(p_out)
         ]
@@ -162,7 +162,7 @@ def assemble_and_mix_audio(scene_data: List[Dict[str, Any]], target_duration: fl
 
     final_voice_dur = get_audio_duration(master_voice)
 
-    # Generate procedural music bed
+    # Generate procedural music bed matching exact audio duration
     music_bed = output_dir / "music_bed.wav"
     generate_cartoon_music(final_voice_dur + 2.0, music_bed)
 

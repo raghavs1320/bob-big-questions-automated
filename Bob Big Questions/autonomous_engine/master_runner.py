@@ -64,8 +64,9 @@ def run_daily_production(dry_run: bool = False, privacy: str = "public"):
     print("\n[Stage 3/6] 🎙️ Synthesizing Voiceover (AvaNeural +2%) & Procedural Music...")
     audio_dir = work_dir / "audio"
     scene_audio = synthesize_all_scenes(screenplay, audio_dir)
-    master_audio = assemble_and_mix_audio(scene_audio, target_dur, audio_dir)
-    print(f" • Master Audio Mix Ready: {master_audio.name}")
+    master_audio = assemble_and_mix_audio(scene_audio, audio_dir)
+    final_dur = sum(s["final_duration"] for s in scene_audio)
+    print(f" • Master Audio Mix Ready: {master_audio.name} (Duration: {final_dur:.1f}s)")
 
     # 4. 1080p Master Video Render (Every-Second Visual Shift)
     print("\n[Stage 4/6] 🎬 Rendering 1080p Masterpiece Video...")

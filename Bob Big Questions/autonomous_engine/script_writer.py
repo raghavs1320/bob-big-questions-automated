@@ -49,7 +49,8 @@ Rules for 7-year-old engagement:
 1. Language: Simple words, highly energetic, funny sound words (SPLAT, BOOM, WHOOSH, CRACK!).
 2. Characters: Bob (cyan hoodie, loves pancakes, innocent and curious) and his fluffy orange tabby cat.
 3. CRITICAL: Every single scene MUST have completely DIFFERENT, UNIQUE narration that advances the story! NEVER repeat lines or phrases across scenes!
-4. Story Beats:
+4. CRITICAL WORD COUNT: Each scene narration MUST be between 35 and 50 words (about 3-4 lively sentences) so the voiceover speaks continuously with NO awkward silences!
+5. Story Beats:
    - Scene 1: Morning breakfast surprise with Bob and his cereal/cat.
    - Scene 2: The initial shock / catalyst happens.
    - Scene 3: Citywide / global domino effect.
@@ -70,7 +71,7 @@ Return PURE JSON strictly formatted as:
       "scene_num": 1,
       "banner": "SHORT IMPACT TITLE (ALL CAPS)",
       "sub_banner": "COMIC DETAIL OR SCIENTIFIC FACT",
-      "narration": "Narrator voiceover text for this scene (around 25-35 words with unique story details)..."
+      "narration": "Full lively voiceover for this scene (35-50 words of continuous energetic storytelling)..."
     }}
   ]
 }}
