@@ -9,10 +9,22 @@ Automatically detects hardware encoder (h264_videotoolbox on Mac, libx264 on Lin
 
 import math
 import random
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
+
+try:
+    import imageio_ffmpeg
+    DEFAULT_FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
+except Exception:
+    DEFAULT_FFMPEG = shutil.which("ffmpeg") or "ffmpeg"
+
+
+def get_ffmpeg_bin() -> str:
+    return shutil.which("ffmpeg") or DEFAULT_FFMPEG
+
 
 WIDTH, HEIGHT = 1920, 1080
 FPS = 30
@@ -37,7 +49,7 @@ def get_font(size: int):
 def check_encoder() -> Tuple[str, List[str]]:
     """Detects available FFmpeg video encoder."""
     try:
-        res = subprocess.run(["ffmpeg", "-encoders"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+        res = subprocess.run([get_ffmpeg_bin(), "-encoders"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
         if "h264_videotoolbox" in res.stdout:
             return "h264_videotoolbox", ["-c:v", "h264_videotoolbox", "-b:v", "9000k", "-pix_fmt", "yuv420p"]
     except Exception:
@@ -171,7 +183,7 @@ def render_masterpiece_video(screenplay: Dict[str, Any], scene_data: List[Dict[s
 
     # Launch FFmpeg pipe
     cmd = [
-        "ffmpeg", "-y",
+        get_ffmpeg_bin(), "-y",
         "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{WIDTH}x{HEIGHT}", "-r", str(FPS),
         "-i", "pipe:0",
         "-i", str(audio_path),

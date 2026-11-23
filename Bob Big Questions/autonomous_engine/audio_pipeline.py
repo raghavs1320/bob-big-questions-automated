@@ -8,6 +8,7 @@ with dynamic loudness ducking to broadcast YouTube standards (-14 LUFS).
 
 import os
 import sys
+import shutil
 import asyncio
 import subprocess
 from pathlib import Path
@@ -16,15 +17,25 @@ from typing import Dict, Any, List
 import numpy as np
 import edge_tts
 
+try:
+    import imageio_ffmpeg
+    DEFAULT_FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
+except Exception:
+    DEFAULT_FFMPEG = shutil.which("ffmpeg") or "ffmpeg"
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 SAMPLE_RATE = 48000
 VOICE_NAME = "en-US-AvaNeural"
 VOICE_RATE = "+2%"
 
 
+def get_ffmpeg_bin() -> str:
+    return shutil.which("ffmpeg") or DEFAULT_FFMPEG
+
+
 def get_audio_duration(file_path: Path) -> float:
     cmd = [
-        "ffmpeg", "-i", str(file_path),
+        get_ffmpeg_bin(), "-i", str(file_path),
         "-hide_banner"
     ]
     res = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
@@ -105,7 +116,7 @@ def generate_cartoon_music(duration_sec: float, output_path: Path):
 
     # Save to wav via ffmpeg pipe
     cmd = [
-        "ffmpeg", "-y", "-f", "s16le", "-ar", str(SAMPLE_RATE), "-ac", "1",
+        get_ffmpeg_bin(), "-y", "-f", "s16le", "-ar", str(SAMPLE_RATE), "-ac", "1",
         "-i", "pipe:0", "-ac", "2", "-ar", str(SAMPLE_RATE), str(output_path)
     ]
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -128,7 +139,7 @@ def assemble_and_mix_audio(scene_data: List[Dict[str, Any]], target_duration: fl
         sc["final_duration"] = sc_dur
         sc["frames"] = int(round(sc_dur * 30))
         cmd = [
-            "ffmpeg", "-y", "-i", str(sc["raw_path"]),
+            get_ffmpeg_bin(), "-y", "-i", str(sc["raw_path"]),
             "-af", f"apad=pad_dur={pad_per_scene:.3f}",
             "-ar", str(SAMPLE_RATE), "-ac", "2",
             str(p_out)
@@ -144,7 +155,7 @@ def assemble_and_mix_audio(scene_data: List[Dict[str, Any]], target_duration: fl
 
     master_voice = output_dir / "master_voice.wav"
     subprocess.run([
-        "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat_list),
+        get_ffmpeg_bin(), "-y", "-f", "concat", "-safe", "0", "-i", str(concat_list),
         "-ar", str(SAMPLE_RATE), "-ac", "2", str(master_voice)
     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
@@ -157,7 +168,7 @@ def assemble_and_mix_audio(scene_data: List[Dict[str, Any]], target_duration: fl
     # Ducked Audio Mix
     master_mix = output_dir / "master_audio_mix.wav"
     cmd_mix = [
-        "ffmpeg", "-y",
+        get_ffmpeg_bin(), "-y",
         "-i", str(master_voice),
         "-i", str(music_bed),
         "-filter_complex",
