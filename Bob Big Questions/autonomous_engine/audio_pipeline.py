@@ -65,6 +65,7 @@ def synthesize_all_scenes(screenplay: Dict[str, Any], output_dir: Path) -> List[
         scene_audio_data.append({
             "scene_num": num,
             "banner": sc.get("banner", f"SCENE {num}"),
+            "sub_banner": sc.get("sub_banner", "INTERESTING SCIENCE PHENOMENON"),
             "raw_path": raw_path,
             "raw_duration": dur,
             "visual_beats": sc.get("visual_beats", [])
